@@ -55,12 +55,12 @@ function streamFile(name) {
       },
     });
 
-    setTimeout(() => {
-      globalThis.playerObj.currentTrack = 0;
-      if (player.value.textTracks[0]) {
-        player.value.textTracks[0].mode = 'showing';
-      }
-    }, 200);
+    if (subtitles.value[0]) {
+      setTimeout(() => {
+        if (player.value.textTracks[0]) player.value.textTracks[0].mode = 'showing';
+        globalThis.playerObj.currentTrack = 0;
+      }, 500);
+    }
   });
 }
 
@@ -75,7 +75,7 @@ function downloadFile(name) {
 }
 
 onMounted(() => {
-  globalThis.playerObj = new Plyr(player.value, { captions: { update: true, language: 'en0' } });
+  globalThis.playerObj = new Plyr(player.value);
 });
 </script>
 

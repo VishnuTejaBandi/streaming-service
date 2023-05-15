@@ -3,6 +3,7 @@ import axios from 'axios';
 export default defineEventHandler(async (event) => {
   let { fileName } = await readBody(event);
   fileName = fileName.replace(/ *\([^)]*\) */g, '');
+
   const { openSubtitlesApiKey } = useRuntimeConfig();
 
   const { data: subtitles } = await axios({
