@@ -45,6 +45,7 @@ function streamFile(name) {
     globalThis.playerObj.once('loadeddata', () => {
       globalThis.playerObj.play();
       globalThis.playerObj.fullscreen.enter();
+      globalThis.playerObj.currentTrack = -1;
     });
 
     subtitles.value = await $fetch('/api/subtitles', {
@@ -53,6 +54,13 @@ function streamFile(name) {
         fileName: name,
       },
     });
+
+    setTimeout(() => {
+      globalThis.playerObj.currentTrack = 0;
+      if (player.value.textTracks[0]) {
+        player.value.textTracks[0].mode = 'showing';
+      }
+    }, 200);
   });
 }
 
@@ -67,7 +75,7 @@ function downloadFile(name) {
 }
 
 onMounted(() => {
-  globalThis.playerObj = new Plyr(player.value, { captions: { update: true } });
+  globalThis.playerObj = new Plyr(player.value, { captions: { update: true, language: 'en0' } });
 });
 </script>
 

@@ -56,7 +56,6 @@ function convertSrtCue(caption) {
 }
 export default defineEventHandler(async (event) => {
   const { fileId } = getQuery(event);
-  console.log(fileId);
   const { openSubtitlesApiKey } = useRuntimeConfig();
 
   const {
