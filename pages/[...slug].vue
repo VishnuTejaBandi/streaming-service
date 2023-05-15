@@ -1,13 +1,26 @@
 <template>
-  <DirectoryView v-if="items?.length" :items="items" @stream="streamFile" @download="downloadFile"></DirectoryView>
-  <div v-else class="empty-folder">
-    <i class="pi pi-folder-open"></i>
-    Folder is empty
-  </div>
+  <template v-if="!loading">
+    <DirectoryView v-if="items?.length" :items="items" @stream="streamFile" @download="downloadFile"></DirectoryView>
+    <div v-else class="empty-folder">
+      <i class="pi pi-folder-open"></i>
+      Folder is empty
+    </div>
+  </template>
+  <FullScreenLoader v-else></FullScreenLoader>
 
-  <video :src="videoPath" ref="player" muted playsInline loop controls v-show="videoPath"></video>
-
-  <FullScreenLoader v-if="loading"></FullScreenLoader>
+  <video ref="player" muted playsInline loop controls :src="videoPath" v-show="videoPath">
+    <template v-if="subtitles.length">
+      <track
+        v-for="({ id, name }, index) in subtitles"
+        :src="`/api/subtitles/download?fileId=${id}`"
+        :label="name"
+        :key="id"
+        kind="captions"
+        :srclang="`en${index}`"
+        :default="index === 2"
+      />
+    </template>
+  </video>
 </template>
 
 <script setup>
@@ -15,26 +28,30 @@ import Plyr from 'plyr';
 const route = useRoute();
 const player = ref(null);
 const videoPath = ref(null);
+const subtitles = ref([]);
 
-const { pending: loading, data: items } = useLazyFetch('/api/read-directory', {
+const { pending: loading, data: items } = useFetch('/api/read-directory', {
   method: 'POST',
   body: {
     path: typeof route.params.slug === 'object' ? '/' + route.params.slug.join('/') : '/',
   },
 });
 
-onMounted(() => {
-  globalThis.playerObj = new Plyr(player.value);
-});
-
 function streamFile(name) {
   const seperator = route.path === '/' ? '' : '/';
   const path = `/streaming${route.path}${seperator}${name}`;
   videoPath.value = path;
-  nextTick(() => {
+  nextTick(async () => {
     globalThis.playerObj.once('loadeddata', () => {
       globalThis.playerObj.play();
       globalThis.playerObj.fullscreen.enter();
+    });
+
+    subtitles.value = await $fetch('/api/subtitles', {
+      method: 'POST',
+      body: {
+        fileName: name,
+      },
     });
   });
 }
@@ -48,6 +65,10 @@ function downloadFile(name) {
   a.download = name;
   a.click();
 }
+
+onMounted(() => {
+  globalThis.playerObj = new Plyr(player.value, { captions: { update: true } });
+});
 </script>
 
 <style lang="scss" scoped>

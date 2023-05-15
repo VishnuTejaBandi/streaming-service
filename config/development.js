@@ -9,4 +9,5 @@ export default {
     env: 'development',
   },
   homeDirectory: `C:\\Users\\vishn\\OneDrive\\Desktop`,
+  openSubtitlesApiKey: 'superDuperSecret',
 };

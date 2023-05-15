@@ -111,5 +111,7 @@ module.exports = {
     defineNuxtConfig: 'readonly',
     setCookie: 'readonly',
     fromNodeMiddleware: 'readonly',
+    getQuery: 'readonly',
+    setHeader: 'readonly',
   },
 };
