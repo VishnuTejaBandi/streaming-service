@@ -5,12 +5,7 @@
     </template>
 
     <template #list="{ data: { name, type } }">
-      <DirectoryItem
-        :name="name"
-        :type="type"
-        @stream="$emit('stream', name)"
-        @download="$emit('download', name)"
-      ></DirectoryItem>
+      <DirectoryItem :name="name" :type="type" @stream="$emit('stream', name)" @download="$emit('download', name)"></DirectoryItem>
     </template>
   </DataView>
 </template>
