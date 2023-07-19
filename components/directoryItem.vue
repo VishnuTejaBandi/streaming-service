@@ -18,6 +18,7 @@ import { getClassWithColor } from 'file-icons-js';
 import mime from 'mime';
 
 const route = useRoute();
+
 const props = defineProps({
   name: String,
   type: String,
@@ -25,9 +26,9 @@ const props = defineProps({
 
 function handleItemClick({ name, type }) {
   if (type === 'file') return;
-  const seperator = route.path === '/' ? '' : '/';
+  const separator = route.path === '/' ? '' : '/';
   navigateTo({
-    path: `${route.path}${seperator}${name}`,
+    path: `${route.path}${separator}${name}`,
   });
 }
 </script>

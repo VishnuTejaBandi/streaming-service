@@ -1,5 +1,5 @@
 <template>
-  <DataView :value="items" class="items-list prevent-select" sortField="name" :sortOrder="sortOrder.value">
+  <DataView :value="props.items" class="items-list prevent-select" sortField="name" :sortOrder="sortOrder.value">
     <template #header>
       <Dropdown :options="sortOptions" optionLabel="label" placeholder="Sort" v-model="sortOrder" />
     </template>
@@ -11,7 +11,7 @@
 </template>
 
 <script setup>
-defineProps({
+const props = defineProps({
   items: Array,
 });
 
