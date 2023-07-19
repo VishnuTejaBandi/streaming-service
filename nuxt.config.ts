@@ -9,7 +9,6 @@ export default defineNuxtConfig({
     'primevue/resources/primevue.css',
     'primeicons/primeicons.css',
     'file-icons-js/css/style.css',
-    'plyr/dist/plyr.css',
   ],
   build: {
     transpile: ['primevue'],

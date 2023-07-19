@@ -11,27 +11,24 @@ app.get('*', async (req, res) => {
 
   let range = structuredClone(req.headers.range);
   range = range.replace('bytes=', '');
-
   if (!range) {
     res.status(400).send('Requires Range header');
   }
 
   const videoSize = fs.statSync(finalPath).size;
-  const CHUNK_SIZE = 10 ** 6;
 
-  let [start, end] = range.split('-');
+  let [start] = range.split('-');
   start = Number(start);
-  end = end ? Number(end) : Math.min(start + CHUNK_SIZE, videoSize - 1);
 
-  const contentLength = end - start + 1;
   const headers = {
-    'Content-Range': `bytes ${start}-${end}/${videoSize}`,
+    'Content-Range': `bytes ${start}-${videoSize}`,
     'Accept-Ranges': 'bytes',
-    'Content-Length': contentLength,
+    'Content-Length': videoSize - start,
     'Content-Type': 'video/mp4',
   };
+
   res.writeHead(206, headers);
-  const videoStream = fs.createReadStream(finalPath, { start, end });
+  const videoStream = fs.createReadStream(finalPath, { start });
   videoStream.pipe(res);
 });
 

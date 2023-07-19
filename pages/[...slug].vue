@@ -1,34 +1,23 @@
 <template>
   <template v-if="!loading">
-    <DirectoryView v-if="items?.length" :items="items" @stream="streamFile" @download="downloadFile"></DirectoryView>
+    <Toast />
+
+    <DirectoryView v-if="items?.length" :items="items" @stream="copyStreamLink" @download="downloadFile"></DirectoryView>
+
     <div v-else class="empty-folder">
       <i class="pi pi-folder-open"></i>
       Folder is empty
     </div>
   </template>
-  <FullScreenLoader v-else></FullScreenLoader>
 
-  <video ref="player" muted playsInline loop controls :src="videoPath" v-show="videoPath">
-    <template v-if="subtitles.length">
-      <track
-        v-for="({ id, name }, index) in subtitles"
-        :src="`/api/subtitles/download?fileId=${id}`"
-        :label="name"
-        :key="id"
-        kind="captions"
-        :srclang="`en${index}`"
-        :default="index === 2"
-      />
-    </template>
-  </video>
+  <FullScreenLoader v-else></FullScreenLoader>
 </template>
 
 <script setup>
-import Plyr from 'plyr';
+import { useToast } from 'primevue/usetoast';
+import copy from 'copy-to-clipboard';
+const toast = useToast();
 const route = useRoute();
-const player = ref(null);
-const videoPath = ref(null);
-const subtitles = ref([]);
 
 const { pending: loading, data: items } = useFetch('/api/read-directory', {
   method: 'POST',
@@ -37,36 +26,9 @@ const { pending: loading, data: items } = useFetch('/api/read-directory', {
   },
 });
 
-function streamFile(name) {
-  const seperator = route.path === '/' ? '' : '/';
-  const path = `/streaming${route.path}${seperator}${name}`;
-  videoPath.value = path;
-  nextTick(async () => {
-    globalThis.playerObj.once('loadeddata', () => {
-      globalThis.playerObj.play();
-      globalThis.playerObj.fullscreen.enter();
-      globalThis.playerObj.currentTrack = -1;
-    });
-
-    subtitles.value = await $fetch('/api/subtitles', {
-      method: 'POST',
-      body: {
-        fileName: name,
-      },
-    });
-
-    if (subtitles.value[0]) {
-      setTimeout(() => {
-        if (player.value.textTracks[0]) player.value.textTracks[0].mode = 'showing';
-        globalThis.playerObj.currentTrack = 0;
-      }, 500);
-    }
-  });
-}
-
 function downloadFile(name) {
-  const seperator = route.path === '/' ? '' : '/';
-  const path = `/api/download${route.path}${seperator}${name}`;
+  const separator = route.path === '/' ? '' : '/';
+  const path = `/api/download${route.path}${separator}${name}`;
 
   var a = document.createElement('a');
   a.href = path;
@@ -74,9 +36,16 @@ function downloadFile(name) {
   a.click();
 }
 
-onMounted(() => {
-  globalThis.playerObj = new Plyr(player.value);
-});
+function copyStreamLink(name) {
+  const separator = route.path === '/' ? '' : '/';
+  const path = `${window.location.origin}/streaming${route.path}${separator}${name}`;
+
+  copy(encodeURI(path), {
+    debug: true,
+    message: 'Press #{key} to copy',
+  });
+  toast.add({ severity: 'info', summary: 'Info', detail: 'Url Has Been Copied To Clipboard', life: 3000 });
+}
 </script>
 
 <style lang="scss" scoped>

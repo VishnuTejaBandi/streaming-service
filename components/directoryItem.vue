@@ -16,6 +16,7 @@
 import { PrimeIcons } from 'primevue/api';
 import { getClassWithColor } from 'file-icons-js';
 import mime from 'mime';
+
 const route = useRoute();
 const props = defineProps({
   name: String,
